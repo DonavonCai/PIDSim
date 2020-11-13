@@ -20,10 +20,15 @@ var i;
 var d;
 
 /* Metrics vars */
+var findOverShoot = true;
 var overShoot = 0;
-var steadyStateErr = 0;
-var oscillation = 0;
+var findRiseTime = true;
+var timeStart = Date.now();
 var riseTime = 0;
+var findSteadyState = false;
+var steadyStateErr = 0;
+var findOscillation = false;
+var oscillation = 0;
 
 /* Timer vars */
 var timer = -1;
@@ -87,6 +92,67 @@ function ChangeMode(mode) {
         $("#down").show();
     }
     reset();
+}
+
+function stopMetrics() {
+    if (findRiseTime)
+    {
+        riseTime += (Date.now() - timeStart);
+    }
+}
+
+function continueMetrics() {
+    if (findRiseTime)
+    {
+        timeStart = Date.now();
+    }
+}
+
+function resetMetrics() {
+    findOverShoot = true;
+    overShoot = 0;
+    findRiseTime = true;
+    timeStart = Date.now();
+    riseTime = 0;
+    findSteadyState = false;
+    steadyStateErr = 0;
+    findOscillation = false;
+    oscillation = 0;
+}
+
+function updateMetrics()
+{
+    if (findOverShoot)
+    {
+        if (Actual >= ActualPrev)
+        {
+            overShoot = Actual - Desired;
+        }
+        else
+        {
+            findOverShoot = false;
+        }
+    }
+
+    if (findRiseTime)
+    {
+        if (Actual >= Desired )
+        {
+            riseTime += Date.now() - timeStart;
+            findRiseTime = false;
+            console.log("rise time found: " + (riseTime / 1000.0));
+        }
+    }
+
+    if (findSteadyState)
+    {
+
+    }
+
+    if (findOscillation)
+    {
+
+    }
 }
 
 function updateController()
@@ -271,7 +337,6 @@ function continueSimulation()
 
 function updateSystem()
 {
-
     //console.log("System Actuator: "+Actuator);
     fan.a = Actuator;
     fan.f = fan.m*fan.a;
@@ -293,6 +358,7 @@ function updateSystem()
     ActuatorPrev = Actuator;
     ActualPrev = Actual;
     Actual = ball.pos;
+
     //console.log("Actual: "+Actual+" timeCnt: "+timeCnt);
     $("#actualValue").text("Actual: "+Actual.toFixed(2));
     if((timeCnt%sampleRate) == 0)
@@ -302,8 +368,6 @@ function updateSystem()
         indexToWrite = (indexToWrite+1)%maxNumPoints;
         pidAnim.adjustBall(Actual);
     }
-
-
 }
 function resetForm()
 {
@@ -319,6 +383,7 @@ function simulate()
         updateController();
     }
     updateSystem();
+    updateMetrics();
 
     if((timeCnt%sampleRate) == 0)
     {
@@ -334,11 +399,7 @@ function simulate()
         plot.axes.xaxis.max = xMax;
         plot.replot();
         applyChartText(plot,"Desired",Desired);
-
-
     }
-
-
 }
 function applyChartText(plot, text, lineValue) {
      var maxVal = yMax;

@@ -75,7 +75,7 @@
                                 </table>
                         </form>
                     </div>
-                    <div id="desiredContainer" style="position: absolute; left: -100px; top: 75px; z-index: 5; width: 50px;"> 
+                    <div id="desiredContainer" style="position: absolute; left: -100px; top: 75px; z-index: 5; width: 50px;">
                         Desired <br/>
                         <input type="text" id="desired" value="100" style="width:99%;"/>
                     </div>
@@ -91,17 +91,17 @@
                     <p id="actualValue" style="position: absolute; left:575px;  top: 85px; z-index: 5; width: 125px;">Actual:</p>
                 </div>
             </div>
-        
+
             <table cellpadding="5">
                 <tr>
                     <td>
-                        <button onclick="startSimulation()">Start</button>
+                        <button onclick="resetMetrics(); startSimulation()">Start</button>
                     </td>
                     <td>
-                        <button onclick="stopSimulation()">Stop</button>
+                        <button onclick="stopMetrics(); stopSimulation()">Stop</button>
                     </td>
                     <td>
-                        <button onclick="continueSimulation()">Continue</button>
+                        <button onclick="continueMetrics(); continueSimulation()">Continue</button>
                     </td>
                     <td>
                         <button id="resetButton" onclick="resetForm()">Reset</button>
@@ -118,7 +118,7 @@
                     </td>
                 </tr>
             </table>
-        
+
             <table>
                 <tr>
                     <td>
