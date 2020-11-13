@@ -19,6 +19,11 @@ var p;
 var i;
 var d;
 
+/* Metrics vars */
+var overShoot = 0;
+var steadyStateErr = 0;
+var oscillation = 0;
+var riseTime = 0;
 
 /* Timer vars */
 var timer = -1;
@@ -350,21 +355,4 @@ function applyChartText(plot, text, lineValue) {
      // insert the label div as a child of the jqPlot parent
      var title_selector = $(plot.target.selector).children('.jqplot-overlayCanvas-canvas');
      $('<div class="jqplot-point-label " style="position:absolute;  text-align:right;width:95%;top:' + valueHeight + 'px;">' + text + '</div>').insertAfter(title_selector);
-}
-
-var pidexist = false;
-function initPid() {
-    if(pidexist){
-        return;
-    }
-    pidexist = true;
-    function loadHTMLandCSS() {
-        var html = "  <div>        <ul id=\"mode\" style='width: 155px;border:solid;'>            <li><a style='cursor: pointer; font-size: 15px;'>PID Controller</a></li>         <li><a style='cursor: pointer; font-size: 15px;'>Manual Control</a></li>        </ul>        </div>    <br />     <div id=\"pidToolContainer\" style=\"width:800px; height:850px;\"><div id=\"modelContainer\" style=\"position: relative; left: 100px; z-index: 0;\"><div id=\"model\"><div id=\"modelImgContainer\" style=\"position: relative; left: -50px; top: 0px; z-index: 0;\"><img src=\"img/pidModel.jpg\" style=\"width:650px\" /></div><div id=\"pidInputContainer\" style=\"position: absolute; left: 25px; top: 42px; z-index: 5; width: 100px;\"><form id=\"pidInputForm\"><center>                            <table>                                <tbody><tr><td><span id=\"P_label\">P</span></td><td><input type=\"text\" id=\"p\" value=\"0.05\" style=\"width: 99%;\"></td></tr>                                <tr><td><span id=\"I_label\">I</span></td><td><input type=\"text\" id=\"i\" value=\"0.001\" style=\"width:99%;\"></td></tr>                                <tr><td><span id=\"D_label\">D</span></td><td><input type=\"text\" id=\"d\" value=\"2.5\" style=\"width:99%;\"></td></tr>                            </tbody></table></center></form></div><div id=\"desiredContainer\" style=\"position: absolute; left: -100px; top: 75px; z-index: 5; width: 50px;\">Desired <br/><input type=\"text\" id=\"desired\" value=\"100\" style=\"width:99%;\"/></div><p id=\"actuatorValue\" style=\"position: absolute; left: 185px; top: 85px; z-index: 5; width: 200px;\">Actuator:</p><div id=\"equationsContainer\" style=\"position: absolute; top: 35px; left: 440px; z-index: 0;\"><p id=\"systemEquations\" style=\"position: absolute; left: -50px; width: 300px\">F = MA<br />F<sub>ball</sub> = F<sub>fan</sub> + F<sub>g</sub><br />V<sub>ball</sub> = V<sub>ball</sub> + A<sub>ball</sub>*dt<br />P<sub>ball</sub> = P<sub>ball</sub> + V<sub>ball</sub>*dt</p></div><p id=\"actualValue\" style=\"position: absolute; left:575px;  top: 85px; z-index: 5; width: 125px;\">Actual:</p></div></div><table cellpadding=\"5\"><tr><td><button onclick=\"initPid(); startSimulation()\">Start</button></td><td><button onclick=\"stopSimulation()\">Stop</button></td><td><button onclick=\"continueSimulation()\">Continue</button></td><td><button id=\"resetButton\" onclick=\"resetForm()\">Reset</button></td>                                                                  <td>                   Ball weight:    <span id=\"ball_weight_text\">0.03 grams</span>                   <div id=\"ball_weight\" style=\"width:150px !important; \"></div>                  </td>                  <td>                   Fan power: <span id=\"fan_power_text\">0.5</span>                   <div id=\"fan_power\" style=\"width:150px !important; \"></div>                  </td>                 </tr>                </table><table><tr><td><div id=\"chartdiv\" style =\"position:relative;height:480px;width:600px;top:25px;margin-top: -20px;\"></div></td><td><canvas id=\"modelAnimation\" width=\"300\" height=\"300\" style=\"position: relative;float:right;left:100px;top:25px;\"></canvas></td></tr></table></div>";
-        var css = "<style></style>";
-        var scrpt = "<script>    $(function(){      $(\"#mode\").menu(      {        select:function(event,ui){          mode=ui.item.text();         ChangeMode(mode);        }      });    });        $(function(){      $(\"#ball_weight\").slider(      {        min:0.02,        max:0.04,        step:0.01,        value:0.03,        change:function(event,ui){          ball.m=parseFloat(ui.value);          $(\"#ball_weight_text\").text(ui.value+' grams');        }      });    });        $(function(){      $(\"#fan_power\").slider(      {        min:0.1,        max:1.0,        step:0.1,        value:0.5,        change:function(event,ui ) {                     fan.m = parseFloat(ui.value);                    $( \"#fan_power_text\" ).text(ui.value);                }            });        });                $(function() {            $('#pidInputForm').append('<button id=\"up\">UP</button>');            $('#pidInputForm').append('<button id=\"down\">DOWN</button>');                        $(\"#up\").hide();            $(\"#down\").hide();                        $('#up').click(function() {                Actuator += 0.0075;                $(\"#actuatorValue\").text(\"Actuator: \"+Actuator.toFixed(6));                pidAnim.adjustFan(Actuator, maxSpeed);                return false;            });                                    $('#down').click(function() {                if (Actuator > 0) {                    Actuator -= 0.0075;                    $(\"#actuatorValue\").text(\"Actuator: \"+Actuator.toFixed(6));                    pidAnim.adjustFan(Actuator, maxSpeed);                }                return false;            });        });        </script>";
-        $("#pid").html(css + html);
-        $("body").append(scrpt);
-        }
-
-        loadHTMLandCSS();
 }
