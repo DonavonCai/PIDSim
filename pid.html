@@ -1,17 +1,11 @@
-<head>
-    <style>
+<!DOCTYPE html>
 
-        button {
-            padding: 5px;
-            background-color: orange;
-        }
-        #ball_weight {
-            margin: 5px;
-        }
-        #fan_power {
-            margin: 5px;
-        }
-    </style>
+<html>
+<head>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/jquery.jqplot.min.css" integrity="sha512-x1sYGOeCnohzDAuU02Ecjrjcyiy3iYTGGQjuiFenhGpoQsEtK2V+/ELYnOGFjFY7LDx609Ndm6O01CzRBkZsxA==" crossorigin="anonymous" />
+    <link rel="stylesheet" href="resources/css/pid.css">
 </head>
 
 <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
@@ -23,113 +17,86 @@
 <script src='pid.js'></script>
 <script src='scrpt.js'></script>
 
-<body style="zoom:1;">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/jquery.jqplot.min.css" integrity="sha512-x1sYGOeCnohzDAuU02Ecjrjcyiy3iYTGGQjuiFenhGpoQsEtK2V+/ELYnOGFjFY7LDx609Ndm6O01CzRBkZsxA==" crossorigin="anonymous" />
-
-    <div id='pid' style="  width: 50%; margin: 0 auto;padding:10px;">
+<body>
+    <div id='pid'>
         <style></style>
         <div>
-            <ul id="mode" style='width: 155px;border:solid;'>
+            <ul id="mode">
                 <li><a style='cursor: pointer; font-size: 15px;'>PID Controller</a></li>
                 <li><a style='cursor: pointer; font-size: 15px;'>Manual Control</a></li>
+                <li><a style='cursor: pointer; font-size: 15px;'>Custom Control</a></li>
             </ul>
         </div>
         <br />
-        <div id="pidToolContainer" style="width:800px; height:850px;">
-            <div id="modelContainer" style="position: relative; left: 100px; z-index: 0;">
-                <div id="model">
-                    <div id="modelImgContainer" style="position: relative; left: -50px; top: 0px; z-index: 0;">
-                        <img src="img/pidModel.jpg" style="width:650px" />
+        <div id="pidToolContainer">
+            <div id="modelContainer">
+                <div id="modelImgContainer">
+                    <div id="pidController">
+                        <strong>Controller</strong>
+                        <div id="pidInputContainer">
+                            <form id="pidInputForm">
+                                    <table>
+                                        <tbody>
+                                            <tr>
+                                                <td> <span id="P_label">P</span> </td>
+                                                <td> <input type="text" id="p" value="0.05"> </td>
+                                            </tr>
+                                            <tr>
+                                                <td> <span id="I_label">I</span> </td>
+                                                <td> <input type="text" id="i" value="0.001"> </td>
+                                            </tr>
+                                            <tr>
+                                                <td> <span id="D_label">D</span> </td>
+                                                <td> <input type="text" id="d" value="2.5"> </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                            </form>
+                        </div>
                     </div>
-                    <div id="pidInputContainer" style="position: absolute; left: 25px; top: 42px; z-index: 5; width: 100px;">
-                        <form id="pidInputForm" style="display: flex; justify-content: center;">
-                                <table>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <span id="P_label">P</span>
-                                            </td>
-                                            <td>
-                                                <input type="text" id="p" value="0.05" style="width: 99%;">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <span id="I_label">I</span>
-                                            </td>
-                                            <td>
-                                                <input type="text" id="i" value="0.001" style="width:99%;">
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <span id="D_label">D</span>
-                                            </td>
-                                            <td>
-                                                <input type="text" id="d" value="2.5" style="width:99%;">
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                        </form>
-                    </div>
-                    <div id="desiredContainer" style="position: absolute; left: -100px; top: 75px; z-index: 5; width: 50px;">
-                        Desired <br/>
-                        <input type="text" id="desired" value="100" style="width:99%;"/>
-                    </div>
-                    <p id="actuatorValue" style="position: absolute; left: 185px; top: 85px; z-index: 5; width: 200px;">Actuator:</p>
-                    <div id="equationsContainer" style="position: absolute; top: 35px; left: 440px; z-index: 0;">
-                        <p id="systemEquations" style="position: absolute; left: -50px; width: 300px">
-                            F = MA<br />
-                            F<sub>ball</sub> = F<sub>fan</sub> + F<sub>g</sub><br />
-                            V<sub>ball</sub> = V<sub>ball</sub> + A<sub>ball</sub>*dt<br />
-                            P<sub>ball</sub> = P<sub>ball</sub> + V<sub>ball</sub>*dt
-                        </p>
-                    </div>
-                    <p id="actualValue" style="position: absolute; left:575px;  top: 85px; z-index: 5; width: 125px;">Actual:</p>
                 </div>
+                <div id="desiredContainer">
+                    Desired <br/>
+                    <input type="text" id="desired" value="100">
+                </div>
+                <p id="actuatorValue">Actuator:</p>
+                <div id="equationsContainer">
+                    <p id="systemEquations">
+                        F = MA<br />
+                        F<sub>ball</sub> = F<sub>fan</sub> + F<sub>g</sub><br />
+                        V<sub>ball</sub> = V<sub>ball</sub> + A<sub>ball</sub>*dt<br />
+                        P<sub>ball</sub> = P<sub>ball</sub> + V<sub>ball</sub>*dt
+                    </p>
+                </div>
+                <p id="actualValue">Actual:</p>
             </div>
 
             <table cellpadding="5">
                 <tr>
-                    <td>
-                        <button onclick="resetMetrics(); startSimulation()">Start</button>
-                    </td>
-                    <td>
-                        <button onclick="stopMetrics(); stopSimulation()">Stop</button>
-                    </td>
-                    <td>
-                        <button onclick="continueMetrics(); continueSimulation()">Continue</button>
-                    </td>
-                    <td>
-                        <button id="resetButton" onclick="resetForm()">Reset</button>
-                    </td>
+                    <td> <button onclick="resetMetrics(); startSimulation()">Start</button> </td>
+                    <td> <button onclick="stopMetrics(); stopSimulation()">Stop</button> </td>
+                    <td> <button onclick="continueMetrics(); continueSimulation()">Continue</button> </td>
+                    <td> <button id="resetButton" onclick="resetForm()">Default</button> </td>
                     <td>
                         Ball weight:
                         <span id="ball_weight_text">0.03 grams</span>
-                        <div id="ball_weight" style="width:150px !important; "></div>
+                        <div id="ball_weight"></div>
                     </td>
                     <td>
                         Fan power:
                         <span id="fan_power_text">0.5</span>
-                        <div id="fan_power" style="width:150px !important; "></div>
+                        <div id="fan_power"></div>
                     </td>
                 </tr>
             </table>
 
             <table>
                 <tr>
-                    <td>
-                        <div id="chartdiv" style ="position:relative;height:480px;width:600px;top:25px;margin-top: -20px;">
-                        </div>
-                    </td>
-                    <td>
-                        <canvas id="modelAnimation" width="300" height="300" style="position: relative;float:right;left:100px;top:25px;"></canvas>
-                    </td>
+                    <td> <div id="chartdiv"></div> </td>
+                    <td> <canvas id="modelAnimation" width="300" height="300"></canvas> </td>
                 </tr>
             </table>
         </div>
     </div>
 </body>
+</html>
