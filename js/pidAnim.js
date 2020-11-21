@@ -14,7 +14,7 @@ function PIDAnim(interval)
     this.height = 0;
     this.c;
     this.tube = new Tube(25,25,30,200,15,Math.PI,0);
-    this.fan = new Fan(25,245,30,30,0,10);
+    this.fan = new Fan(25,235,30,30,0,10);
     this.ball = new Ball(40,210,15);
     this.desired = 0;
 }
