@@ -137,6 +137,10 @@ strong {
     float: left;
 }
 
+#metricsContainer {
+    position: relative;
+    top: 150px;
+}
 
 /* Arrows */
 #actuatorArrow {

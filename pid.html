@@ -108,11 +108,19 @@
                 </tr>
             </table>
 
-            <table>
-                <tr>
-                    <td> <div id="chartdiv"></div> </td>
-                </tr>
-            </table>
+            <div style="display: inline-flex;">
+                <table>
+                    <tr>
+                        <td> <div id="chartdiv"></div> </td>
+                    </tr>
+                </table>
+                <table id="metricsContainer">
+                    <tr><td><p id="OvershootValue">Overshoot: 0</p></td></tr>
+                    <tr><td><p id="RiseTimeValue">Rise Time: 0</p></td></tr>
+                    <tr><td><p id="StateErrorValue">Steady-State Error: 0</p></td></tr>
+                    <tr><td><p id="OscillationValue">Oscillation: 0</p></td></tr>
+                </table>
+            </div>
         </div>
     </div>
 </body>

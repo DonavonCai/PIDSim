@@ -27,8 +27,11 @@ var timeStart = Date.now();
 var riseTime = 0;
 var findSteadyState = false;
 var steadyStateErr = 0;
-var findOscillation = false;
-var oscillation = 0;
+// for oscillation
+var pit = 0;
+var peak = 0;
+var foundPit = false;
+var foundPeak = false;
 
 /* Timer vars */
 var timer = -1;
@@ -78,6 +81,7 @@ function ChangeMode(mode) {
         $("#P_label").show();
         $("#I_label").show();
         $("#D_label").show();
+        $("#desiredContainer").show();
         $("#up").hide();
         $("#down").hide();
     }
@@ -88,6 +92,7 @@ function ChangeMode(mode) {
         $("#P_label").hide();
         $("#I_label").hide();
         $("#D_label").hide();
+        $("#desiredContainer").hide();
         $("#up").show();
         $("#down").show();
     }
@@ -114,10 +119,17 @@ function resetMetrics() {
     findRiseTime = true;
     timeStart = Date.now();
     riseTime = 0;
-    findSteadyState = false;
+    findSteadyState = true;
     steadyStateErr = 0;
-    findOscillation = false;
-    oscillation = 0;
+    pit = 0;
+    peak = 0;
+    foundPit = false;
+    foundPeak = false;
+
+    $("#OvershootValue").text("Overshoot: 0");
+    $("#RiseTimeValue").text("Rise Time: 0s");
+    $("#StateErrorValue").text("Steady-State Error: 0");
+    $("#OscillationValue").text("Oscillation: 0");
 }
 
 function updateMetrics()
@@ -126,7 +138,11 @@ function updateMetrics()
     {
         if (Actual >= ActualPrev)
         {
-            overShoot = Actual - Desired;
+            // This block never executes if the condition is moved up. I don't know why.
+            if (Actual >= Desired) {
+                overShoot = Actual - Desired;
+                $("#OvershootValue").text("Overshoot: "+overShoot.toFixed(2));
+            }
         }
         else
         {
@@ -140,19 +156,36 @@ function updateMetrics()
         {
             riseTime += Date.now() - timeStart;
             findRiseTime = false;
-            console.log("rise time found: " + (riseTime / 1000.0));
+            $("#RiseTimeValue").text("Rise Time: "+(riseTime / 1000).toFixed(2)+"s");
+
+            // No steady state error if desired value has been reached.
+            findSteadyState = false;
+            steadyStateErr = 0;
+            $("#StateErrorValue").text("Steady-State Error: 0");
         }
     }
 
-    if (findSteadyState)
-    {
+    steadyStateErr = (Desired - Actual).toFixed(2);
+    $("#StateErrorValue").text("Steady-State Error: "+steadyStateErr);
 
+    // TODO: peak, pit
+    if (!foundPeak) {
+        if (Actual < ActualPrev) {
+            peak = Math.abs(Actual - Desired).toFixed(2);
+            foundPeak = true;
+            foundPit = false;
+        }
     }
 
-    if (findOscillation)
-    {
-
+    if (!foundPit) {
+        if (Actual > ActualPrev) {
+            pit = Math.abs(Actual - Desired).toFixed(2);
+            foundPit = true;
+            foundPeak = false;
+        }
     }
+
+    $("#OscillationValue").text("Oscillation: +" + peak + ", -" + pit);
 }
 
 function updateController()
