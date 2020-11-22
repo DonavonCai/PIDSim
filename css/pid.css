@@ -18,6 +18,17 @@ input {
     width: 99%;
 }
 
+#manualSliderContainer {
+    position: relative;
+    margin: 5px;
+    width: 20px;
+    height: 130px;
+}
+
+#manualSliderContainer .ui-slider-handle {
+    left: 0;
+}
+
 /* HTML elements */
 
 body {
@@ -140,6 +151,7 @@ strong {
 #metricsContainer {
     position: relative;
     top: 150px;
+    width: 270px;
 }
 
 /* Arrows */

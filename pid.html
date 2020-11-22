@@ -24,7 +24,6 @@
             <ul id="mode">
                 <li><a style='cursor: pointer; font-size: 15px;'>PID Controller</a></li>
                 <li><a style='cursor: pointer; font-size: 15px;'>Manual Control</a></li>
-                <!-- <li><a style='cursor: pointer; font-size: 15px;'>Custom Control</a></li> -->
             </ul>
         </div>
         <br />
@@ -56,7 +55,9 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <div id="manualSliderContainer"></div>
                     </form>
+
                 </div>
                 <div id="actuatorContainer">
                     <p id = "actuatorValue">Actuator:</p>
@@ -118,7 +119,7 @@
                     <tr><td><p id="OvershootValue">Overshoot: 0</p></td></tr>
                     <tr><td><p id="RiseTimeValue">Rise Time: 0</p></td></tr>
                     <tr><td><p id="StateErrorValue">Steady-State Error: 0</p></td></tr>
-                    <tr><td><p id="OscillationValue">Oscillation: 0</p></td></tr>
+                    <tr><td><p id="OscillationValue">Oscillating between: 0</p></td></tr>
                 </table>
             </div>
         </div>

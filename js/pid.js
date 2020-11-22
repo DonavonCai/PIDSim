@@ -82,8 +82,7 @@ function ChangeMode(mode) {
         $("#I_label").show();
         $("#D_label").show();
         $("#desiredContainer").show();
-        $("#up").hide();
-        $("#down").hide();
+        $("#manualSliderContainer").hide();
     }
     else {
         $("#p").hide();
@@ -93,8 +92,7 @@ function ChangeMode(mode) {
         $("#I_label").hide();
         $("#D_label").hide();
         $("#desiredContainer").hide();
-        $("#up").show();
-        $("#down").show();
+        $("#manualSliderContainer").show();
     }
     reset();
 }
@@ -168,12 +166,13 @@ function updateMetrics()
     steadyStateErr = (Desired - Actual).toFixed(2);
     $("#StateErrorValue").text("Steady-State Error: "+steadyStateErr);
 
-    // TODO: peak, pit
     if (!foundPeak) {
         if (Actual < ActualPrev) {
-            peak = Math.abs(Actual - Desired).toFixed(2);
-            foundPeak = true;
-            foundPit = false;
+            if (Actual >= Desired) {
+                peak = Math.abs(Actual - Desired).toFixed(2);
+                foundPeak = true;
+                foundPit = false;
+            }
         }
     }
 
@@ -185,12 +184,11 @@ function updateMetrics()
         }
     }
 
-    $("#OscillationValue").text("Oscillation: +" + peak + ", -" + pit);
+    $("#OscillationValue").text("Oscillating between: +" + peak + ", -" + pit);
 }
 
 function updateController()
 {
-    //console.log("Absolute max: "+(p*Desired+i*integMax));
     Error = (Desired) - (Actual);
     Deriv = (Actual) - (ActualPrev);
     Integ += Error;
@@ -202,7 +200,7 @@ function updateController()
     {
         Integ=integMin;
     }
-    //console.log((p*Error)+" "+(i*Integ)+" "+(d*Deriv));
+
     Actuator = p*Error + i*Integ - d*Deriv;
     if(Actuator < actuatorMin)
     {
@@ -370,7 +368,6 @@ function continueSimulation()
 
 function updateSystem()
 {
-    //console.log("System Actuator: "+Actuator);
     fan.a = Actuator;
     fan.f = fan.m*fan.a;
     ball.a = (fan.f/ball.m)-g;
@@ -392,7 +389,6 @@ function updateSystem()
     ActualPrev = Actual;
     Actual = ball.pos;
 
-    //console.log("Actual: "+Actual+" timeCnt: "+timeCnt);
     $("#actualValue").text("Actual: "+Actual.toFixed(2));
     if((timeCnt%sampleRate) == 0)
     {

@@ -31,22 +31,17 @@ $(function(){
     });
 });
 $(function() {
-    $('#pidInputForm').append('<button id="up">UP</button>');
-    $('#pidInputForm').append('<button id="down">DOWN</button>');
-    $("#up").hide();
-    $("#down").hide();
-    $('#up').click(function() {
-        Actuator += 0.0075;
-        $("#actuatorValue").text("Actuator: "+Actuator.toFixed(6));
-        pidAnim.adjustFan(Actuator, maxSpeed);
-        return false;
-    });
-    $('#down').click(function() {
-        if (Actuator > 0) {
-            Actuator -= 0.0075;
+    $("#manualSliderContainer").hide();
+    $("#manualSliderContainer").slider({
+        orientation: "vertical",
+        min: 0.0,
+        max: 2.0,
+        step: 0.001,
+        value: 0.0,
+        slide:function(event, ui) {
+            Actuator = parseFloat(ui.value);
             $("#actuatorValue").text("Actuator: "+Actuator.toFixed(6));
             pidAnim.adjustFan(Actuator, maxSpeed);
         }
-        return false;
     });
 });
