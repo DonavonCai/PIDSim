@@ -6,24 +6,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/jquery.jqplot.min.css" integrity="sha512-x1sYGOeCnohzDAuU02Ecjrjcyiy3iYTGGQjuiFenhGpoQsEtK2V+/ELYnOGFjFY7LDx609Ndm6O01CzRBkZsxA==" crossorigin="anonymous" />
     <link rel="stylesheet" href="css/pid.css">
+
+    <script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/jquery.jqplot.min.js" integrity="sha512-FQKKXM+/7s6LVHU07eH2zShZHunHqkBCIcDqodXfdV/NNXW165npscG8qOHdxVsOM4mJx38Ep1oMBcNXGB3BCw==" crossorigin="anonymous"></script>
+
+    <script src='js/pidAnim.js'></script>
+    <script src='js/customControl.js'></script>
+    <script src='js/metrics.js'></script>
+    <script src='js/pid.js'></script>
+    <script src='js/scrpt.js'></script>
 </head>
-
-<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/jquery.jqplot.min.js" integrity="sha512-FQKKXM+/7s6LVHU07eH2zShZHunHqkBCIcDqodXfdV/NNXW165npscG8qOHdxVsOM4mJx38Ep1oMBcNXGB3BCw==" crossorigin="anonymous"></script>
-
-<script src='js/pidAnim.js'></script>
-<script src='js/pid.js'></script>
-<script src='js/scrpt.js'></script>
 
 <body>
     <div id='pid'>
         <style></style>
         <div>
-            <ul id="mode">
+            <ul id="pidMode">
                 <li><a style='cursor: pointer; font-size: 15px;'>PID Controller</a></li>
                 <li><a style='cursor: pointer; font-size: 15px;'>Manual Control</a></li>
+                <li><a style='cursor: pointer; font-size: 15px;'>Custom Control</a></li>
             </ul>
         </div>
         <br />
@@ -31,6 +34,7 @@
             <div id="modelContainer">
                 <div id="controllerContainer">
                     <strong>Controller</strong>
+                    <!-- pid controller -->
                     <form id="pidInputForm">
                         <table>
                             <tbody>
@@ -55,8 +59,16 @@
                                 </tr>
                             </tbody>
                         </table>
+                        <!-- manual control -->
                         <div id="manualSliderContainer"></div>
                     </form>
+                    <!-- custom control -->
+                    <button id="openCustom" onclick="showCustomPopup();">Equations</button>
+                    <div id="customEquationPopup">
+                        <button id="closeCustom" onclick="hideCustomPopup();">Close</button>
+                        <h5>Controller Model:</h5>
+                        <textarea id="customEquationField"></textarea>
+                    </div>
 
                 </div>
                 <div id="actuatorContainer">
@@ -102,9 +114,9 @@
 
             <table cellpadding="5">
                 <tr>
-                    <td> <button onclick="resetMetrics(); startSimulation()">Start</button> </td>
-                    <td> <button onclick="stopMetrics(); stopSimulation()">Stop</button> </td>
-                    <td> <button onclick="continueMetrics(); continueSimulation()">Continue</button> </td>
+                    <td> <button onclick="metrics.reset(); startSimulation()">Start</button> </td>
+                    <td> <button onclick="metrics.stop(); stopSimulation()">Stop</button> </td>
+                    <td> <button onclick="metrics.continue(); continueSimulation()">Continue</button> </td>
                     <td> <button id="resetButton" onclick="resetForm()">Default</button> </td>
                 </tr>
             </table>

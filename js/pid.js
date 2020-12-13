@@ -4,34 +4,28 @@
     Javascript simulation of a pid controlled system
 */
 
-/* PID vars */
-var Desired = 0;
-var Actual = 0;
-var Error;
-var Deriv;
-var Integ = 0;
-var ActualPrev = 0;
-var Actuator = 0;
-var actuatorMax = 10;
-var integMax = 1000;
-var integMin = -1000;
-var p;
-var i;
-var d;
+/*
+  Dependencies:
+  * metrics.js must be loaded in pid.html before this file.
+*/
 
-/* Metrics vars */
-var findOverShoot = true;
-var overShoot = 0;
-var findRiseTime = true;
-var timeStart = Date.now();
-var riseTime = 0;
-var findSteadyState = false;
-var steadyStateErr = 0;
-// for oscillation
-var pit = 0;
-var peak = 0;
-var foundPit = false;
-var foundPeak = false;
+var ACTUATOR_MAX = 10;
+var INTEG_MAX = 1000;
+var INTEG_MIN = -1000;
+
+/* PID vars */
+var pid = {
+    Desired: 0,
+    Actual: 0,
+    ActualPrev: 0,
+    Error:0,
+    Deriv:0,
+    Integ: 0,
+    Actuator: 0,
+    p: 0,
+    i: 0,
+    d: 0
+};
 
 /* Timer vars */
 var timer = -1;
@@ -75,6 +69,7 @@ $('#modelAnimation').animate({ top: "-=160" }, 1);
 
 function ChangeMode(mode) {
     if (mode == "PID Controller") {
+        console.log("changed");
         $("#p").show();
         $("#i").show();
         $("#d").show();
@@ -83,8 +78,9 @@ function ChangeMode(mode) {
         $("#D_label").show();
         $("#desiredContainer").show();
         $("#manualSliderContainer").hide();
+        hideCustom();
     }
-    else {
+    else if (mode == "Manual Control") {
         $("#p").hide();
         $("#i").hide();
         $("#d").hide();
@@ -93,127 +89,49 @@ function ChangeMode(mode) {
         $("#D_label").hide();
         $("#desiredContainer").hide();
         $("#manualSliderContainer").show();
+        hideCustom();
+    }
+    else if (mode == "Custom Control") {
+        $("#p").hide();
+        $("#i").hide();
+        $("#d").hide();
+        $("#P_label").hide();
+        $("#I_label").hide();
+        $("#D_label").hide();
+        $("#desiredContainer").hide();
+        $("#manualSliderContainer").hide();
+        showCustom();
     }
     reset();
 }
 
-function stopMetrics() {
-    if (findRiseTime)
-    {
-        riseTime += (Date.now() - timeStart);
-    }
-}
-
-function continueMetrics() {
-    if (findRiseTime)
-    {
-        timeStart = Date.now();
-    }
-}
-
-function resetMetrics() {
-    findOverShoot = true;
-    overShoot = 0;
-    findRiseTime = true;
-    timeStart = Date.now();
-    riseTime = 0;
-    findSteadyState = true;
-    steadyStateErr = 0;
-    pit = 0;
-    peak = 0;
-    foundPit = false;
-    foundPeak = false;
-
-    $("#OvershootValue").text("Overshoot: 0");
-    $("#RiseTimeValue").text("Rise Time: 0s");
-    $("#StateErrorValue").text("Steady-State Error: 0");
-    $("#OscillationValue").text("Oscillation: 0");
-}
-
-function updateMetrics()
-{
-    if (findOverShoot)
-    {
-        if (Actual >= ActualPrev)
-        {
-            // This block never executes if the condition is moved up. I don't know why.
-            if (Actual >= Desired) {
-                overShoot = Actual - Desired;
-                $("#OvershootValue").text("Overshoot: "+overShoot.toFixed(2));
-            }
-        }
-        else
-        {
-            findOverShoot = false;
-        }
-    }
-
-    if (findRiseTime)
-    {
-        if (Actual >= Desired )
-        {
-            riseTime += Date.now() - timeStart;
-            findRiseTime = false;
-            $("#RiseTimeValue").text("Rise Time: "+(riseTime / 1000).toFixed(2)+"s");
-
-            // No steady state error if desired value has been reached.
-            findSteadyState = false;
-            steadyStateErr = 0;
-            $("#StateErrorValue").text("Steady-State Error: 0");
-        }
-    }
-
-    steadyStateErr = (Desired - Actual).toFixed(2);
-    $("#StateErrorValue").text("Steady-State Error: "+steadyStateErr);
-
-    if (!foundPeak) {
-        if (Actual < ActualPrev) {
-            if (Actual >= Desired) {
-                peak = Math.abs(Actual - Desired).toFixed(2);
-                foundPeak = true;
-                foundPit = false;
-            }
-        }
-    }
-
-    if (!foundPit) {
-        if (Actual > ActualPrev) {
-            pit = Math.abs(Actual - Desired).toFixed(2);
-            foundPit = true;
-            foundPeak = false;
-        }
-    }
-
-    $("#OscillationValue").text("Oscillating between: +" + peak + ", -" + pit);
-}
-
 function updateController()
 {
-    Error = (Desired) - (Actual);
-    Deriv = (Actual) - (ActualPrev);
-    Integ += Error;
-    if(Integ > integMax)
+    pid.Error = (pid.Desired) - (pid.Actual);
+    pid.Deriv = (pid.Actual) - (pid.ActualPrev);
+    pid.Integ += pid.Error;
+    if(pid.Integ > INTEG_MAX)
     {
-        Integ=integMax;
+        pid.Integ=INTEG_MAX;
     }
-    if(Integ < integMin)
+    if(pid.Integ < INTEG_MIN)
     {
-        Integ=integMin;
-    }
-
-    Actuator = p*Error + i*Integ - d*Deriv;
-    if(Actuator < actuatorMin)
-    {
-        Actuator = actuatorMin;
-    }
-    if(Actuator > actuatorMax)
-    {
-        Actuator = actuatorMax;
+        pid.Integ=INTEG_MIN;
     }
 
-    Actuator += baseSpeed;
-    $("#actuatorValue").text("Actuator: "+Actuator.toFixed(6));
-    pidAnim.adjustFan(Actuator, maxSpeed);
+    pid.Actuator = pid.p*(pid.Error) + pid.i*(pid.Integ) - pid.d*(pid.Deriv);
+    if(pid.Actuator < actuatorMin)
+    {
+        pid.Actuator = actuatorMin;
+    }
+    if(pid.Actuator > ACTUATOR_MAX)
+    {
+        pid.Actuator = ACTUATOR_MAX;
+    }
+
+    pid.Actuator += baseSpeed;
+    $("#actuatorValue").text("Actuator: "+pid.Actuator.toFixed(6));
+    pidAnim.adjustFan(pid.Actuator, maxSpeed);
 
 }
 
@@ -232,16 +150,16 @@ function reset()
 {
     $('#chartdiv').empty();
     temp = 0;
-    Desired = 0;
-    Actual = 0;
-    Integ = 0;
-    ActualPrev = 0;
+    pid.Desired = 0;
+    pid.Actual = 0;
+    pid.Integ = 0;
+    pid.ActualPrev = 0;
     ActuatorPrev=0;
     if (mode == "PID Controller") {
-        Actuator = 0;
+        pid.Actuator = 0;
     }
     timer = -1;
-    Actual = 0;
+    pid.Actual = 0;
     timeCnt = 0;
     plot = null;
     for(var i=0; i < maxNumPoints; i++)
@@ -286,11 +204,11 @@ function startSimulation()
     {
         stopSimulation();
         reset();
-        p = parseFloat($("#p").val());
-        i = parseFloat($("#i").val());
-        d = parseFloat($("#d").val());
-        Desired = parseFloat($("#desired").val());
-        Actual = 0;
+        pid.p = parseFloat($("#p").val());
+        pid.i = parseFloat($("#i").val());
+        pid.d = parseFloat($("#d").val());
+        pid.Desired = parseFloat($("#desired").val());
+        pid.Actual = 0;
         $("#p").attr("disabled",true);
         $("#i").attr("disabled",true);
         $("#d").attr("disabled",true);
@@ -298,12 +216,12 @@ function startSimulation()
         $("#resetButton").attr("disabled",true);
         $("#mode").menu( "option", "disabled", true);
         yMin = 0;
-        yMax = (Desired*2);
-        ballMax = (Desired*2);
+        yMax = (pid.Desired*2);
+        ballMax = (pid.Desired*2);
         xMin = 0;
         xMax = maxVisiblePoints*sampleRate*dt;
-        maxSpeed = (p*Desired+i*integMax) > actuatorMax ? actuatorMax : (p*Desired+i*integMax) + 1;
-        pidAnim.init(Desired);
+        maxSpeed = ((pid.p*pid.Desired) + pid.i * INTEG_MAX) > ACTUATOR_MAX ? ACTUATOR_MAX : ((pid.p * pid.Desired) + pid.i * INTEG_MAX) + 1;
+        pidAnim.init(pid.Desired);
         timer = setInterval(simulate,timerPeriod);
 
         plot = $.jqplot("chartdiv",[plots],{
@@ -314,7 +232,7 @@ function startSimulation()
                     {
                         horizontalLine: {
                             name: "Desired",
-                            y: Desired,
+                            y: pid.Desired,
                             color: "#c5b47f",
                             XOffset: 0
                         }
@@ -332,11 +250,11 @@ function startSimulation()
                     labelRenderer: $.jqplot.CanvasAxisLabelRenderer,
                     min:yMin,
                     max:yMax,
-                    tickInterval: (Desired*2)/20
+                    tickInterval: (pid.Desired*2)/20
                 }
             }
         });
-        applyChartText(plot,"Desired",Desired);
+        applyChartText(plot,"Desired",pid.Desired);
 
     }
 }
@@ -349,18 +267,18 @@ function continueSimulation()
     if(validateForm())
     {
         stopSimulation();
-        p = $("#p").val();
-        i = $("#i").val();
-        d = $("#d").val();
-        Desired = $("#desired").val();
+        pid.p = $("#p").val();
+        pid.i = $("#i").val();
+        pid.d = $("#d").val();
+        pid.Desired = $("#desired").val();
         $("#p").attr("disabled",true);
         $("#i").attr("disabled",true);
         $("#d").attr("disabled",true);
         $("#desired").attr("disabled",true);
         $("#resetButton").attr("disabled",true);
-        ballMax = (Desired*2);
-        maxSpeed = (p*Desired+i*integMax)>actuatorMax?actuatorMax:(p*Desired+i*integMax);
-        pidAnim.init(Desired);
+        ballMax = 2*(pid.Desired);
+        maxSpeed = ((pid.p * pid.Desired) + pid.i * INTEG_MAX) > ACTUATOR_MAX ? ACTUATOR_MAX : ((pid.p * pid.Desired) + pid.i * INTEG_MAX);
+        pidAnim.init(pid.Desired);
         timer = setInterval(simulate,timerPeriod);
 
     }
@@ -368,7 +286,7 @@ function continueSimulation()
 
 function updateSystem()
 {
-    fan.a = Actuator;
+    fan.a = pid.Actuator;
     fan.f = fan.m*fan.a;
     ball.a = (fan.f/ball.m)-g;
     timeCnt+=1;
@@ -385,17 +303,17 @@ function updateSystem()
         ball.pos = ballMax;
     }
 
-    ActuatorPrev = Actuator;
-    ActualPrev = Actual;
-    Actual = ball.pos;
+    ActuatorPrev = pid.Actuator;
+    pid.ActualPrev = pid.Actual;
+    pid.Actual = ball.pos;
 
-    $("#actualValue").text("Actual: "+Actual.toFixed(2));
+    $("#actualValue").text("Actual: "+pid.Actual.toFixed(2));
     if((timeCnt%sampleRate) == 0)
     {
         plots[indexToWrite][0] = dt*timeCnt;
-        plots[indexToWrite][1] = Actual;
+        plots[indexToWrite][1] = pid.Actual;
         indexToWrite = (indexToWrite+1)%maxNumPoints;
-        pidAnim.adjustBall(Actual);
+        pidAnim.adjustBall(pid.Actual);
     }
 }
 function resetForm()
@@ -412,7 +330,8 @@ function simulate()
         updateController();
     }
     updateSystem();
-    updateMetrics();
+    // updateMetrics();
+    metrics.update();
 
     if((timeCnt%sampleRate) == 0)
     {
@@ -427,7 +346,7 @@ function simulate()
         plot.axes.xaxis.min = xMin;
         plot.axes.xaxis.max = xMax;
         plot.replot();
-        applyChartText(plot,"Desired",Desired);
+        applyChartText(plot,"Desired",pid.Desired);
     }
 }
 function applyChartText(plot, text, lineValue) {

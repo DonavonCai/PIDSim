@@ -1,5 +1,5 @@
 $(function() {
-    $("#mode").menu({
+    $("#pidMode").menu({
         select:function(event,ui) {
             mode=ui.item.text();
             ChangeMode(mode);
@@ -44,4 +44,8 @@ $(function() {
             pidAnim.adjustFan(Actuator, maxSpeed);
         }
     });
+});
+$(function() {
+    $("#openCustom").hide();
+    $("#customEquationPopup").hide();
 });
