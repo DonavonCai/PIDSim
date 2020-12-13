@@ -62,17 +62,19 @@ function isOperator(c) {
             return true;
         case ")":
             return true;
+        case "=":
+            return true;
         default:
             return false;
     }
 }
 
 function isLetter(c) {
-    return /a-z/i.test(c);
+    return (/[a-z]/i).test(c);
 }
 
 function isDigit(c) {
-    return /0-9|./.test(c);
+    return /[0-9]|\./.test(c);
 }
 
 var customController = {
@@ -81,62 +83,66 @@ var customController = {
     printStack: function() {
         console.log("Printing stack:");
         var entry;
-        while (!this.stack.isEmpty) {
-            entry = stack.pop();
+        while (!this.stack.isEmpty()) {
+            entry = this.stack.pop();
             console.log("(", entry.type, ", ", entry.value, ")");
         }
     },
 
     tokenize: function(str) {
         var i, j, curStr, curChar;
-        var curTok;
-
+        var type = "";
+        var value = "";
         // TODO: split by \n, then loop through?
 
         str = str.split(" ");
         // str contains an array of words, each word might have an operator in it
         for (i = 0; i < str.length; i++) {
             curStr = str[i];
-
-            var token = new Token("", "");
             // Iterate through the word
             for (j = 0; j < curStr.length; j++) {
                 curChar = curStr.charAt(j);
 
                 if (isDigit(curChar)) {
                     // If the previous token is a var, perform implicit multiplication
-                    if (token.type == "var") {
-                        this.stack.push(token);
+                    if (type == "var" || type == "") {
+                        this.stack.push(new Token(type, value));
                         this.stack.push(new Token("op", "*"));
+                        // and start creating a new token
+                        value = "";
                     }
 
-                    // Now create a num token
-                    token.type = "num";
-                    token.value = token.value.concat(curChar);
+                    type = "num";
+                    value = value.concat(curChar);
 
                     // If the char is at the end of the word, the number is complete
-                    if (j == curStr.length)
-                        this.stack.push(token);
+                    if (j == curStr.length - 1) {
+                        this.stack.push(new Token(type, value));
+                    }
                 }
                 else if (isLetter(curChar)) {
-                    if (token.type == "num") {
-                        this.stack.push(token);
+                    if (type == "num") {
+                        this.stack.push(new Token(type, value));
                         this.stack.push(new Token("op", "*"));
+                        value = "";
                     }
 
-                    token.type = "var";
-                    token.value = token.value.concat(curChar);
+                    type = "var";
+                    value = value.concat(curChar);
 
-                    if (j == curStr.length)
-                        this.stack.push(token);
+                    if (j == curStr.length - 1)
+                        this.stack.push(new Token(type, value));
                 }
                 else if (isOperator(curChar)) {
                     // push the left operand (must be a num or var)
-                    if (token.type != "op" && token.type != "")
-                        this.stack.push(token);
-
+                    if (type != "op" && type != "") {
+                        this.stack.push(new Token(type, value));
+                    }
                     // Then push whatever operator this is
-                    this.stack.push(new Token("op", curChar));
+                    type = "op";
+                    value = curChar;
+                    this.stack.push(new Token(type, curChar));
+                    value = "";
                 }
                 else {
                     console.log("Invalid character");
@@ -147,7 +153,10 @@ var customController = {
     createAST: function() {
         console.log("createAST");
     },
-    enterEquations() {
-        // Todo: get equations from equation field
+    parse(str) {
+        // TODO: split by \n and parse lines?
+        this.tokenize(str);
+        this.printStack();
+        this.createAST();
     }
 }

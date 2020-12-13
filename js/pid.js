@@ -99,7 +99,7 @@ function ChangeMode(mode) {
         $("#D_label").hide();
         $("#desiredContainer").hide();
         $("#manualSliderContainer").hide();
-        showCustom();
+        $("#openCustom").show();
     }
     reset();
 }
@@ -199,6 +199,11 @@ function validateForm()
 }
 function startSimulation()
 {
+    if (mode == "Custom Control") {
+        customController.parse($("#customEquationField").val());
+        return;
+    }
+
     if(validateForm())
     {
         stopSimulation();
