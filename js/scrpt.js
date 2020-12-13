@@ -39,9 +39,9 @@ $(function() {
         step: 0.001,
         value: 0.0,
         slide:function(event, ui) {
-            Actuator = parseFloat(ui.value);
-            $("#actuatorValue").text("Actuator: "+Actuator.toFixed(6));
-            pidAnim.adjustFan(Actuator, maxSpeed);
+            pid.Actuator = parseFloat(ui.value);
+            $("#actuatorValue").text("Actuator: "+pid.Actuator.toFixed(6));
+            pidAnim.adjustFan(pid.Actuator, maxSpeed);
         }
     });
 });

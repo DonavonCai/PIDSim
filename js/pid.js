@@ -69,7 +69,6 @@ $('#modelAnimation').animate({ top: "-=160" }, 1);
 
 function ChangeMode(mode) {
     if (mode == "PID Controller") {
-        console.log("changed");
         $("#p").show();
         $("#i").show();
         $("#d").show();
