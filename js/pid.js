@@ -10,6 +10,7 @@
 */
 
 var ACTUATOR_MAX = 10;
+var ACTUATOR_MIN = 0;
 var INTEG_MAX = 1000;
 var INTEG_MIN = -1000;
 
@@ -44,7 +45,6 @@ var ballMin = 0;
 var ballMax;
 var maxSpeed;
 var baseSpeed = 0.2;
-var actuatorMin = 0;
 var mode = "PID Controller"
 
 /* Plot vars */
@@ -97,7 +97,7 @@ function ChangeMode(mode) {
         $("#P_label").hide();
         $("#I_label").hide();
         $("#D_label").hide();
-        $("#desiredContainer").hide();
+        $("#desiredContainer").show();
         $("#manualSliderContainer").hide();
         $("#openCustom").show();
     }
@@ -119,9 +119,9 @@ function updateController()
     }
 
     pid.Actuator = pid.p*(pid.Error) + pid.i*(pid.Integ) - pid.d*(pid.Deriv);
-    if(pid.Actuator < actuatorMin)
+    if(pid.Actuator < ACTUATOR_MIN)
     {
-        pid.Actuator = actuatorMin;
+        pid.Actuator = ACTUATOR_MIN;
     }
     if(pid.Actuator > ACTUATOR_MAX)
     {
@@ -156,6 +156,9 @@ function reset()
     ActuatorPrev=0;
     if (mode == "PID Controller") {
         pid.Actuator = 0;
+    }
+    else if (mode == "Custom Control") {
+        customController.reset();
     }
     timer = -1;
     pid.Actual = 0;
@@ -199,15 +202,15 @@ function validateForm()
 }
 function startSimulation()
 {
-    if (mode == "Custom Control") {
-        customController.parse($("#customEquationField").val());
-        return;
-    }
-
     if(validateForm())
     {
         stopSimulation();
         reset();
+
+        if (mode == "Custom Control") {
+            customController.setModel($("#customEquationField").val());
+        }
+
         pid.p = parseFloat($("#p").val());
         pid.i = parseFloat($("#i").val());
         pid.d = parseFloat($("#d").val());
@@ -259,7 +262,6 @@ function startSimulation()
             }
         });
         applyChartText(plot,"Desired",pid.Desired);
-
     }
 }
 function continueSimulation()
@@ -284,7 +286,6 @@ function continueSimulation()
         maxSpeed = ((pid.p * pid.Desired) + pid.i * INTEG_MAX) > ACTUATOR_MAX ? ACTUATOR_MAX : ((pid.p * pid.Desired) + pid.i * INTEG_MAX);
         pidAnim.init(pid.Desired);
         timer = setInterval(simulate,timerPeriod);
-
     }
 }
 
@@ -333,8 +334,10 @@ function simulate()
     if (mode == "PID Controller") {
         updateController();
     }
+    else if (mode == "Custom Control") {
+        customController.updateController();
+    }
     updateSystem();
-    // updateMetrics();
     metrics.update();
 
     if((timeCnt%sampleRate) == 0)

@@ -13,7 +13,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqPlot/1.0.9/jquery.jqplot.min.js" integrity="sha512-FQKKXM+/7s6LVHU07eH2zShZHunHqkBCIcDqodXfdV/NNXW165npscG8qOHdxVsOM4mJx38Ep1oMBcNXGB3BCw==" crossorigin="anonymous"></script>
 
     <script src='js/pidAnim.js'></script>
-    <script src='js/customControl.js'></script>
+    <script src='js/customControl/stack.js'></script>
+    <script src='js/customControl/variable.js'></script>
+    <script src='js/customControl/parseTree.js'></script>
+    <script src='js/customControl/customControl.js'></script>
     <script src='js/metrics.js'></script>
     <script src='js/pid.js'></script>
     <script src='js/scrpt.js'></script>
@@ -67,9 +70,8 @@
                     <div id="customEquationPopup">
                         <button id="closeCustom" onclick="hideCustomPopup();">Close</button>
                         <h5>Controller Model:</h5>
-                        <textarea id="customEquationField"></textarea>
+                        <textarea id="customEquationField" spellcheck=false></textarea>
                     </div>
-
                 </div>
                 <div id="actuatorContainer">
                     <p id = "actuatorValue">Actuator:</p>
